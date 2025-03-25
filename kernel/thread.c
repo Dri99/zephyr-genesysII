@@ -34,6 +34,10 @@
 
 LOG_MODULE_DECLARE(os, CONFIG_KERNEL_LOG_LEVEL);
 
+#ifdef CONFIG_SCHED_SIM_PFAIR
+static int id_sched_thread = 0;
+#endif
+
 #ifdef CONFIG_OBJ_CORE_THREAD
 static struct k_obj_type  obj_type_thread;
 
@@ -773,6 +777,9 @@ void z_init_thread_base(struct _thread_base *thread_base, int priority,
 	thread_base->slice_expired = NULL;
 #endif /* CONFIG_TIMESLICE_PER_THREAD */
 
+#ifdef CONFIG_SCHED_SIM_PFAIR
+	thread_base->id_thread = id_sched_thread++;
+#endif	
 	/* swap_data does not need to be initialized */
 
 	z_init_thread_timeout(thread_base);
