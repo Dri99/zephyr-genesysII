@@ -105,6 +105,10 @@ struct _thread_base {
 	int prio_deadline;
 #endif /* CONFIG_SCHED_DEADLINE */
 
+#ifdef CONFIG_SCHED_SIM_PFAIR
+	int id_thread;
+#endif
+
 	uint32_t order_key;
 
 #ifdef CONFIG_SMP

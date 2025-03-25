@@ -124,13 +124,21 @@ struct _priq_mq {
 	unsigned long bitmask[PRIQ_BITMAP_SIZE];
 };
 
+struct _priq_pfair {
+	sys_dlist_t * queue;
+	uint32_t lag;
+	const uint32_t p1;
+};
+
 struct _ready_q {
 #ifndef CONFIG_SMP
 	/* always contains next thread to run: cannot be NULL */
 	struct k_thread *cache;
 #endif
 
-#if defined(CONFIG_SCHED_DUMB)
+#if defined(CONGIG_SCHED_SIM_PFAIR)
+	struct _priq_pfair runq;
+#elif defined(CONFIG_SCHED_DUMB)
 	sys_dlist_t runq;
 #elif defined(CONFIG_SCHED_SCALABLE)
 	struct _priq_rb runq;

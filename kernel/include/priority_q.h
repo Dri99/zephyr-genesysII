@@ -15,8 +15,13 @@ extern int32_t z_sched_prio_cmp(struct k_thread *thread_1,
 
 bool z_priq_rb_lessthan(struct rbnode *a, struct rbnode *b);
 
+/* Simply-Fair scheduling */
+#if defined(CONFIG_SCHED_SIM_PFAIR)
+#define _priq_run_best		z_priq_pfair_best
+#define _priq_run_add		z_priq_pfair_add
+#define _priq_run_remove	z_priq_pfair_remove
 /* Dumb Scheduling */
-#if defined(CONFIG_SCHED_DUMB)
+#elif defined(CONFIG_SCHED_DUMB)
 #define _priq_run_add		z_priq_dumb_add
 #define _priq_run_remove	z_priq_dumb_remove
 # if defined(CONFIG_SCHED_CPU_MASK)
@@ -56,6 +61,51 @@ static ALWAYS_INLINE void z_priq_mq_remove(struct _priq_mq *pq, struct k_thread 
 #define _priq_wait_remove	z_priq_dumb_remove
 #define _priq_wait_best		z_priq_dumb_best
 #endif
+
+static ALWAYS_INLINE void z_priq_pfair_add(struct _priq_pfair *pq,struct k_thread *thread)
+{
+	struct k_thread *t;
+
+	SYS_DLIST_FOR_EACH_CONTAINER(pq->queue, t, base.qnode_dlist) {
+		if (z_sched_prio_cmp(thread, t) > 0) {
+			sys_dlist_insert(&t->base.qnode_dlist,
+					 &thread->base.qnode_dlist);
+			return;
+		}
+	}
+
+	sys_dlist_append(pq->queue, &thread->base.qnode_dlist);
+}
+
+static ALWAYS_INLINE void z_priq_pfair_remove(struct _priq_pfair *pq,struct k_thread *thread)
+{
+	ARG_UNUSED(pq);
+
+	sys_dlist_remove(&thread->base.qnode_dlist);
+}
+
+static ALWAYS_INLINE struct k_thread *z_priq_pfair_best(struct _priq_pfair *pq)
+{
+	sys_dnode_t *t1 = sys_dlist_peek_head(pq->queue);
+	sys_dnode_t *t2 = sys_dlist_peek_next(pq->queue,t1);
+	struct k_thread *t = NULL;
+	
+	if(t1 != NULL){
+		t = CONTAINER_OF(t1, struct k_thread, base.qnode_dlist);
+		if(t2 != NULL){
+			struct k_thread *tmp = CONTAINER_OF(t2, struct k_thread, base.qnode_dlist);
+			if(t->base.prio==tmp->base.prio){
+				if(pq->lag < (INT32_MIN-pq->p1)){
+					t = tmp;
+				}
+				pq->lag += pq->p1;
+			}
+		}
+	}
+
+	return t;
+
+}
 
 static ALWAYS_INLINE void z_priq_dumb_remove(sys_dlist_t *pq, struct k_thread *thread)
 {
