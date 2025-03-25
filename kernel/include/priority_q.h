@@ -62,6 +62,8 @@ static ALWAYS_INLINE void z_priq_mq_remove(struct _priq_mq *pq, struct k_thread 
 #define _priq_wait_best		z_priq_dumb_best
 #endif
 
+
+#ifdef CONFIG_SCHED_SIM_PFAIR
 static ALWAYS_INLINE void z_priq_pfair_add(struct _priq_pfair *pq,struct k_thread *thread)
 {
 	struct k_thread *t;
@@ -98,15 +100,16 @@ static ALWAYS_INLINE struct k_thread *z_priq_pfair_best(struct _priq_pfair *pq)
 				struct k_thread *a[2];
 				a[0] = (t->base.id_thread < tmp->base.id_thread) ? t : tmp;
 				a[1] = (t->base.id_thread < tmp->base.id_thread) ? tmp : t;
-				t = (pq->lag >= (INT32_MIN-pq->p1)) ? a[0] : a[1];
+				t = (pq->lag >= (INT32_MIN-(int)pq->p1)) ? a[0] : a[1];
 				pq->lag += pq->p1;
+				printf("t %d\n",t->base.id_thread);
 			}
 		}
 	}
-
 	return t;
 
 }
+#endif /* CONFIG_SCHED_SIM_PFAIR */
 
 static ALWAYS_INLINE void z_priq_dumb_remove(sys_dlist_t *pq, struct k_thread *thread)
 {

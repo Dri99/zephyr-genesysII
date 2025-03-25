@@ -126,7 +126,7 @@ struct _priq_mq {
 
 struct _priq_pfair {
 	sys_dlist_t queue;
-	uint32_t lag;
+	int32_t lag;
 	uint32_t p1;
 };
 
