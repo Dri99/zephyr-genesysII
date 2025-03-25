@@ -1015,7 +1015,11 @@ void init_ready_q(struct _ready_q *ready_q)
 	for (int i = 0; i < ARRAY_SIZE(_kernel.ready_q.runq.queues); i++) {
 		sys_dlist_init(&ready_q->runq.queues[i]);
 	}
-#else
+#elif defined(CONFIG_SCHED_SIM_PFAIR)
+	sys_dlist_init(&ready_q->runq.queue);
+	ready_q->runq.lag = 0x80000000;
+	ready_q->runq.p1 = 1; 
+#else	
 	sys_dlist_init(&ready_q->runq);
 #endif
 }

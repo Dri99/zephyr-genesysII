@@ -66,7 +66,7 @@ static ALWAYS_INLINE void z_priq_pfair_add(struct _priq_pfair *pq,struct k_threa
 {
 	struct k_thread *t;
 
-	SYS_DLIST_FOR_EACH_CONTAINER(pq->queue, t, base.qnode_dlist) {
+	SYS_DLIST_FOR_EACH_CONTAINER(&pq->queue, t, base.qnode_dlist) {
 		if (z_sched_prio_cmp(thread, t) > 0) {
 			sys_dlist_insert(&t->base.qnode_dlist,
 					 &thread->base.qnode_dlist);
@@ -74,7 +74,7 @@ static ALWAYS_INLINE void z_priq_pfair_add(struct _priq_pfair *pq,struct k_threa
 		}
 	}
 
-	sys_dlist_append(pq->queue, &thread->base.qnode_dlist);
+	sys_dlist_append(&pq->queue, &thread->base.qnode_dlist);
 }
 
 static ALWAYS_INLINE void z_priq_pfair_remove(struct _priq_pfair *pq,struct k_thread *thread)
@@ -86,8 +86,8 @@ static ALWAYS_INLINE void z_priq_pfair_remove(struct _priq_pfair *pq,struct k_th
 
 static ALWAYS_INLINE struct k_thread *z_priq_pfair_best(struct _priq_pfair *pq)
 {
-	sys_dnode_t *t1 = sys_dlist_peek_head(pq->queue);
-	sys_dnode_t *t2 = sys_dlist_peek_next(pq->queue,t1);
+	sys_dnode_t *t1 = sys_dlist_peek_head(&pq->queue);
+	sys_dnode_t *t2 = sys_dlist_peek_next(&pq->queue,t1);
 	struct k_thread *t = NULL;
 	
 	if(t1 != NULL){

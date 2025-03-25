@@ -125,9 +125,9 @@ struct _priq_mq {
 };
 
 struct _priq_pfair {
-	sys_dlist_t * queue;
+	sys_dlist_t queue;
 	uint32_t lag;
-	const uint32_t p1;
+	uint32_t p1;
 };
 
 struct _ready_q {
@@ -136,7 +136,7 @@ struct _ready_q {
 	struct k_thread *cache;
 #endif
 
-#if defined(CONGIG_SCHED_SIM_PFAIR)
+#if defined(CONFIG_SCHED_SIM_PFAIR)
 	struct _priq_pfair runq;
 #elif defined(CONFIG_SCHED_DUMB)
 	sys_dlist_t runq;
