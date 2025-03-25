@@ -96,8 +96,9 @@ static ALWAYS_INLINE struct k_thread *z_priq_pfair_best(struct _priq_pfair *pq)
 			struct k_thread *tmp = CONTAINER_OF(t2, struct k_thread, base.qnode_dlist);
 			if(t->base.prio==tmp->base.prio){
 				struct k_thread *a[2];
-				if(t->base.id_thread < tmp->base.id_thread) ? a={t,tmp} : a={tmp,t};
-				if(pq->lag >= (INT32_MIN-pq->p1)) ? t=a[0] : t=a[1];
+				a[0] = (t->base.id_thread < tmp->base.id_thread) ? t : tmp;
+				a[1] = (t->base.id_thread < tmp->base.id_thread) ? tmp : t;
+				t = (pq->lag >= (INT32_MIN-pq->p1)) ? a[0] : a[1];
 				pq->lag += pq->p1;
 			}
 		}
