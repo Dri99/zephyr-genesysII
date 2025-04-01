@@ -102,7 +102,6 @@ static ALWAYS_INLINE struct k_thread *z_priq_pfair_best(struct _priq_pfair *pq)
 				a[1] = (t->base.id_thread < tmp->base.id_thread) ? tmp : t;
 				t = (pq->lag >= (INT32_MIN-(int)pq->p1)) ? a[0] : a[1];
 				pq->lag += pq->p1;
-				printf("t %d\n",t->base.id_thread);
 			}
 		}
 	}
