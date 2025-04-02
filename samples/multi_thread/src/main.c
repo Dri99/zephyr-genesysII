@@ -21,7 +21,7 @@ volatile int id_thread = -1;
 
 void my_timer_handler(struct k_timer *dummy)
 {
-	//printf("interrupt\n");
+	printf("interrupt\n");
 	end_loop = 0;
 	ARG_UNUSED(dummy);
 }
@@ -31,27 +31,29 @@ K_TIMER_DEFINE(my_timer, my_timer_handler, NULL);
 
 
 void thread1(void *arg1, void *arg2, void *arg3) {
+	k_yield();
 	ARG_UNUSED(arg1);
 	ARG_UNUSED(arg2);
 	ARG_UNUSED(arg3);
-	while(end_loop){
-		/*if(id_thread != 1){
+	do{
+		if(id_thread != 1){
 			id_thread = 1;
 			printf("thread 1\n");
-		}*/
-	}
+		}
+	}while(end_loop);
 }
 
 void thread2(void *arg1, void *arg2, void *arg3) {
+	k_yield();
 	ARG_UNUSED(arg1);
 	ARG_UNUSED(arg2);
 	ARG_UNUSED(arg3);
-	while(end_loop){
-		/*if(id_thread != 2){
+	do{
+		if(id_thread != 2){
 			id_thread = 2;
 			printf("thread 2\n");
-		}*/
-	}
+		}
+	}while(end_loop);
 }
 
 static inline uint64_t read_mret(void) {
@@ -68,7 +70,8 @@ static inline void enable_pmc(void) {
 int main(void) {
 	/*enable_pmc();
 	__asm__ volatile ("csrw mhpmevent3, 28");*/
-	
+	k_sleep(K_MSEC(1));
+	printf("start main\n");
     k_tid_t t1 = k_thread_create(&thread1_data, thread1_stack, STACK_SIZE,
                                    thread1, NULL, NULL, NULL,
                                    THREAD1_PRIORITY, 0, K_NO_WAIT);
