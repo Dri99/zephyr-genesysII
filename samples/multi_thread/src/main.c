@@ -21,8 +21,7 @@ volatile int id_thread = -1;
 
 void my_timer_handler(struct k_timer *dummy)
 {
-	k_busy_wait(10000);
-	printf("interrupt\n");
+	//printf("interrupt\n");
 	end_loop = 0;
 	ARG_UNUSED(dummy);
 }
@@ -73,10 +72,12 @@ int main(void) {
     k_tid_t t1 = k_thread_create(&thread1_data, thread1_stack, STACK_SIZE,
                                    thread1, NULL, NULL, NULL,
                                    THREAD1_PRIORITY, 0, K_NO_WAIT);
+	k_thread_name_set(t1,"T1");							   
 	k_tid_t t2 = k_thread_create(&thread2_data,thread2_stack,STACK_SIZE,thread2,NULL,NULL,NULL,
 									THREAD2_PRIORITY,0,K_NO_WAIT);							   
 	
-	k_timer_start(&my_timer, K_MSEC(30000), K_NO_WAIT);
+	k_thread_name_set(t2, "T2");
+	k_timer_start(&my_timer, K_MSEC(60000), K_NO_WAIT);
 	k_thread_join(t1,K_FOREVER);
 	k_thread_join(t2,K_FOREVER);
 	z_sys_poweroff();
