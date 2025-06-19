@@ -159,6 +159,19 @@ config SCHED_SIM_PFAIR
     help
       Enables the Pfair scheduling algorithm in the kernel.
 
+config SCHED_SIM_PFAIR_LAG
+	int "Initial value of the lag"
+	default 0
+	help
+		This value is used to initialized the value
+		of the algorithm's lag 
+
+config SCHED_SIM_PFAIR_P1
+	int "Value of the P1"
+	default 2147483648
+	help
+		This value controls the size of the time quanta assigned to threads
+
 config MAIN_STACK_SIZE
 	int "Size of stack for initialization and main thread"
 	default 2048 if COVERAGE_GCOV

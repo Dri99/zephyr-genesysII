@@ -88,23 +88,50 @@ static ALWAYS_INLINE void z_priq_pfair_remove(struct _priq_pfair *pq,struct k_th
 
 static ALWAYS_INLINE struct k_thread *z_priq_pfair_best(struct _priq_pfair *pq)
 {
+    /* peek the first two thread in the queue */
 	sys_dnode_t *t1 = sys_dlist_peek_head(&pq->queue);
 	sys_dnode_t *t2 = sys_dlist_peek_next(&pq->queue,t1);
+
+    /* it'll be contain the selected thread */
 	struct k_thread *t = NULL;
 	
+    /* if the queue was empty the S.O. will return a fatal error */
 	if(t1 != NULL){
+
+        /* macro for extracting the thread from the struct sys_dnode_t */
 		t = CONTAINER_OF(t1, struct k_thread, base.qnode_dlist);
+
+        /* if there's only one thread in the queue , we'll return it */
 		if(t2 != NULL){
 			struct k_thread *tmp = CONTAINER_OF(t2, struct k_thread, base.qnode_dlist);
+
+            /* 
+             *  we're doing the algorithm only if the two thread have the same priority 
+             *  otherwise we return the first thread (the one with the highest priority)
+            */
 			if(t->base.prio==tmp->base.prio){
-				struct k_thread *a[2];
-				a[0] = (t->base.id_thread < tmp->base.id_thread) ? t : tmp;
-				a[1] = (t->base.id_thread < tmp->base.id_thread) ? tmp : t;
-				t = (pq->lag >= (INT32_MIN-(int)pq->p1)) ? a[0] : a[1];
+
+                /* 
+                 *   this check is essential because we must have the two thread 
+                 *  in the same order
+                 */
+				if(t->base.id_thread > tmp->base.id_thread){
+					struct k_thread *swap = t;
+					t = tmp;
+					tmp = swap;
+				}
+
+                /* if the lag is greater than or equal, t will already contain the correct thread */ 
+				if(pq->lag < (INT32_MIN-(int)pq->p1)){
+					t = tmp;
+				}
+
+                /* always updaiting the lag */
 				pq->lag += pq->p1;
 			}
 		}
 	}
+    
 	return t;
 
 }

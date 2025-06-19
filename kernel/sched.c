@@ -1017,8 +1017,8 @@ void init_ready_q(struct _ready_q *ready_q)
 	}
 #elif defined(CONFIG_SCHED_SIM_PFAIR)
 	sys_dlist_init(&ready_q->runq.queue);
-	ready_q->runq.lag = 0;
-	ready_q->runq.p1 = 0x80000000; 
+	ready_q->runq.lag = CONFIG_SCHED_SIM_PFAIR_LAG;
+	ready_q->runq.p1 = CONFIG_SCHED_SIM_PFAIR_P1;
 #else	
 	sys_dlist_init(&ready_q->runq);
 #endif
